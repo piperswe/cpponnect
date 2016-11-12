@@ -1,7 +1,3 @@
-//
-// Created by zebulon on 11/10/16.
-//
-
 #ifndef CPPONNECT_REQUEST_RESPONSE_H
 #define CPPONNECT_REQUEST_RESPONSE_H
 

@@ -1,7 +1,3 @@
-//
-// Created by zebulon on 11/10/16.
-//
-
 #include "request-response.h"
 
 using namespace cpponnect;

@@ -1,7 +1,3 @@
-//
-// Created by zebulon on 11/10/16.
-//
-
 #include "server.h"
 #include <boost/array.hpp>
 

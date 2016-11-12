@@ -1,7 +1,3 @@
-//
-// Created by zebulon on 11/10/16.
-//
-
 #ifndef CPPONNECT_APP_H
 #define CPPONNECT_APP_H
 
