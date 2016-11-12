@@ -33,11 +33,6 @@ bool mount_point_matches(std::string mount_point, std::string url) {
 
 void app::operator()(request &req, response &res) {
     try {
-        for (const auto &middleware : installed_middleware) {
-            middleware(req, res);
-            if (res.finished) return;
-        }
-
         for (const auto &middleware : mounted_middleware) {
             if (mount_point_matches(middleware.mount_point, req.url)) {
                 middleware.value(req, res);
@@ -45,17 +40,22 @@ void app::operator()(request &req, response &res) {
             if (res.finished) return;
         }
 
-        res.end();
-    } catch (std::exception exception) {
-        for (const auto &middleware : installed_error_middleware) {
-            middleware(exception, req, res);
+        for (const auto &middleware : installed_middleware) {
+            middleware(req, res);
             if (res.finished) return;
         }
 
+        res.end();
+    } catch (std::exception exception) {
         for (const auto &middleware : mounted_error_middleware) {
             if (mount_point_matches(middleware.mount_point, req.url)) {
                 middleware.value(exception, req, res);
             }
+            if (res.finished) return;
+        }
+
+        for (const auto &middleware : installed_error_middleware) {
+            middleware(exception, req, res);
             if (res.finished) return;
         }
 
