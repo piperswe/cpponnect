@@ -1,3 +1,4 @@
+#include <fstream>
 #include "server.h"
 #include "app.h"
 
@@ -6,14 +7,20 @@ using namespace cpponnect;
 int main(void) {
     app my_app;
 
-    my_app.use([](auto &req, auto &res) {
-        throw std::exception();
-//        res.end(std::string("Hello, world!\n"), std::string("utf-8"));
-    });
+    std::string index = R"INDEXHTML(
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cpponnect</title>
+    </head>
+    <body>
+        <strong>Cpponnect</strong> seems to be working fine!
+    </body>
+</html>
+    )INDEXHTML";
 
-    my_app.use([](auto err, auto &req, auto &res) {
-        res.statusCode = 500;
-        res.end(std::string("Oh, no! Something went wrong!\n"), std::string("utf-8"));
+    my_app.use([index](auto &req, auto &res) {
+        res.end(index, "utf-8");
     });
 
     std::cout << "Listening on port 3000" << std::endl;

@@ -152,4 +152,5 @@ void response::writeHead(int statusCode, std::string statusMessage, std::map<std
     ss << "\r\n";
 
     socket.write_some(boost::asio::buffer(ss.str()));
+    headersSent = true;
 }

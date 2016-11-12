@@ -51,10 +51,7 @@ request parse_request(std::string req) {
         parsed.httpVersion = ss.str();
         parsed.httpVersionMajor = std::stoi(major.str());
         parsed.httpVersionMinor = std::stoi(minor.str());
-        if (req[i + 1] == '\n')
-            i += 2;
-        else
-            i++;
+        for (; i < req.length() && (req[i] == '\r' || req[i] == '\n'); i++);
     }
 
     // Parse the headers
@@ -76,10 +73,7 @@ request parse_request(std::string req) {
             parsed.rawHeaders.push_back(header_name.str());
             parsed.rawHeaders.push_back(header_value.str());
             parsed.headers[header_name.str()] = header_value.str();
-            if (req[i + 1] == '\n')
-                i += 2;
-            else
-                i++;
+            for (; i < req.length() && (req[i] == '\r' || req[i] == '\n'); i++);
         }
     }
 
@@ -95,13 +89,14 @@ void server::listen(int port) {
         tcp::socket socket(io_service);
         acceptor.accept(socket);
 
-        boost::array<char, 128> buf;
+        std::stringstream ss;
+        boost::array<char, 512> buf;
         boost::system::error_code err;
 
         size_t len = socket.read_some(boost::asio::buffer(buf), err);
         if (err) socket.write_some(boost::asio::buffer(err.message()));
 
-        request req = parse_request(std::string(buf.data()));
+        request req = parse_request(std::string(buf.begin(), buf.begin() + len));
         response res(socket);
 
         on_request(req, res);
