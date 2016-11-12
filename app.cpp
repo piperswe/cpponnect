@@ -3,16 +3,18 @@
 
 using namespace cpponnect;
 
+bool mount_point_matches(std::string mount_point, std::string url) {
+    return boost::starts_with(url, mount_point);
+}
+
 void app::use(middleware_t middleware) {
     installed_middleware.push_back(middleware);
 }
 
 void app::use(std::string mount_point, middleware_t middleware) {
-    if (mount_point == "/") {
-        use(middleware);
-    } else {
-        mounted_middleware.push_back({ mount_point, middleware });
-    }
+    use([mount_point, middleware](auto &x, auto &y) {
+        if (mount_point_matches(mount_point, x.url)) middleware(x, y);
+    });
 }
 
 void app::use(error_middleware_t middleware) {
@@ -20,26 +22,13 @@ void app::use(error_middleware_t middleware) {
 }
 
 void app::use(std::string mount_point, error_middleware_t middleware) {
-    if (mount_point == "/") {
-        use(middleware);
-    } else {
-        mounted_error_middleware.push_back({ mount_point, middleware });
-    }
-}
-
-bool mount_point_matches(std::string mount_point, std::string url) {
-    return boost::starts_with(url, mount_point);
+    use([mount_point, middleware](auto x, auto &y, auto &z) {
+        if (mount_point_matches(mount_point, y.url)) middleware(x, y, z);
+    });
 }
 
 void app::operator()(request &req, response &res) {
     try {
-        for (const auto &middleware : mounted_middleware) {
-            if (mount_point_matches(middleware.mount_point, req.url)) {
-                middleware.value(req, res);
-            }
-            if (res.finished) return;
-        }
-
         for (const auto &middleware : installed_middleware) {
             middleware(req, res);
             if (res.finished) return;
@@ -47,13 +36,6 @@ void app::operator()(request &req, response &res) {
 
         res.end();
     } catch (std::exception exception) {
-        for (const auto &middleware : mounted_error_middleware) {
-            if (mount_point_matches(middleware.mount_point, req.url)) {
-                middleware.value(exception, req, res);
-            }
-            if (res.finished) return;
-        }
-
         for (const auto &middleware : installed_error_middleware) {
             middleware(exception, req, res);
             if (res.finished) return;

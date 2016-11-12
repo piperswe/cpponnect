@@ -13,9 +13,7 @@ namespace cpponnect {
 
     class app : public middleware_t {
         std::vector<middleware_t> installed_middleware;
-        std::vector<mounted<middleware_t>> mounted_middleware;
         std::vector<error_middleware_t> installed_error_middleware;
-        std::vector<mounted<error_middleware_t>> mounted_error_middleware;
     public:
         void use(middleware_t middleware);
         void use(error_middleware_t middleware);

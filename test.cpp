@@ -19,6 +19,17 @@ int main(void) {
 </html>
     )INDEXHTML";
 
+    my_app.use("/headers", [](auto &req, auto &res) {
+        res.write("Here's your headers:\n", "utf-8");
+        for (const auto &header : req.headers) {
+            res.write(header.first, "utf-8");
+            res.write(": ", "utf-8");
+            res.write(header.second, "utf-8");
+            res.write("\n", "utf-8");
+        }
+        res.end("You're welcome!", "utf-8");
+    });
+
     my_app.use([index](auto &req, auto &res) {
         res.end(index, "utf-8");
     });
