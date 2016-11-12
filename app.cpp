@@ -1,4 +1,5 @@
 #include "app.h"
+#include <boost/algorithm/string/predicate.hpp>
 
 using namespace cpponnect;
 
@@ -27,7 +28,7 @@ void app::use(std::string mount_point, error_middleware_t middleware) {
 }
 
 bool mount_point_matches(std::string mount_point, std::string url) {
-    return true;
+    return boost::starts_with(url, mount_point);
 }
 
 void app::operator()(request &req, response &res) {
